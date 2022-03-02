@@ -1,7 +1,7 @@
 {
   "name": "nasa-project",
   "version": "1.0.0",
-  "description": "��#\u0000 \u0000N\u0000a\u0000s\u0000a\u0000-\u0000P\u0000r\u0000o\u0000j\u0000e\u0000c\u0000t\u0000\r\u0000 \u0000",
+  "description": "",
   "main": "index.js",
   "scripts": {
     "install-server": "npm install --prefix server",
@@ -10,7 +10,8 @@
     "deploy": "npm run build --prefix client && npm run start --prefix server",
     "server": "npm run watch --prefix server",
     "client": "npm start --prefix client",
-    "watch": "npm-run-all --parallel server client"
+    "watch": "npm-run-all --parallel server client",
+    "test": "npm run test --prefix server && npm run test --prefix client"
   },
   "repository": {
     "type": "git",
