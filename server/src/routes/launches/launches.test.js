@@ -3,21 +3,18 @@
 const request = require("supertest");
 const app = require("../../app");
 
-
-// ASTA E UN TEST 
+// ASTA E UN TEST
 describe("Test GET /launches", () => {
   test("I should respond 200 sucress", async () => {
     const response = await request(app)
-      .get("/launches")
+      .get("/v1/launches")
       .expect("Content-Type", /json/)
       .expect(200);
     // expect(response.statusCode).toBe(200);
   });
 });
 
-
-
-// ASTA E ALT TEST 
+// ASTA E ALT TEST
 describe("Test POST /launches", () => {
   const completeLaunchDataTest = {
     mission: "USS Enterpripse",
@@ -47,7 +44,7 @@ describe("Test POST /launches", () => {
 
   test("I should respond 201 sucress", async () => {
     const response = await request(app)
-      .post("/launches")
+      .post("/v1/launches")
       .send(completeLaunchDataTest)
       .expect("Content-Type", /json/)
       .expect(201);
@@ -60,7 +57,6 @@ describe("Test POST /launches", () => {
     // .toMatchObject - verifica daca sunt unele proprietati (dar nu exacte, poate fi doar una)
     expect(response.body).toMatchObject(launchDataWithoutDate);
   });
-
 
   // TESTE PT ERRORI
   test("It should catch missing rq proprieties", async () => {
@@ -77,7 +73,7 @@ describe("Test POST /launches", () => {
   });
   test("It should catch invalid date", async () => {
     const response = await request(app)
-      .post("/launches")
+      .post("/v1/launches")
       .send(launchDataWithInvalidDate)
       .expect("Content-Type", /json/)
       .expect(400);

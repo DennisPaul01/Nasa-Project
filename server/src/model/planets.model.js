@@ -3,7 +3,8 @@ const path = require("path");
 
 const { parse } = require("csv-parse");
 
-const habitablePlanets = [];
+const planets = require("./planets.mongo");
+
 const pathData = path.join(__dirname, "..", "..", "data", "kepler_data.csv");
 
 function isHabitablePlanet(planet) {
@@ -38,24 +39,55 @@ function loadPlanetsData() {
           columns: true,
         })
       )
-      .on("data", (data) => {
+      .on("data", async (data) => {
         if (isHabitablePlanet(data)) {
-          habitablePlanets.push(data);
+          // upsert operation = (insert + update)
+          savePlanet(data);
         }
       })
-      .on("error", (err) => {
-        console.log(err);
-        reject(err);
+      .on("error", (error) => {
+        console.log(error);
+        reject(error);
       })
-      .on("end", () => {
-        console.log(`${habitablePlanets.length} habitable planets found!`);
+      .on("end", async () => {
+        const countPlanetsFound = (await getAllPlanets()).length;
+        console.log(`${countPlanetsFound} habitable planets found!`);
+
         resolve();
       });
   });
 }
 
-function getAllPlanets() {
-  return habitablePlanets;
+async function getAllPlanets() {
+  // Cum cautam in collectia noastra
+  // daca lasam ({}) - se vor intoarece toate obiectele din collectie
+  // daca putem un obict : keplerName:"Kepler-62 f"
+  // al doilea {} - reprezinta un obiect cu proprietatile din obiect care
+  // dorim sa apara sau nu (1 daca dorim / 0 daca nu dormi)
+
+  // o a doua metoda a fi un string cu ce vrem sa includem sau nu
+  // ex. "keplerName anotherField"
+  // daca vrem sa fie tot dar sa excludem ceva punem - in fata
+  // ex. "-keplerName "
+  return planets.find({}, { _id: 0, __v: 0 });
+}
+
+async function savePlanet(planet) {
+  //.update
+  // primul argument : gaseste toate documente care se potrivesc cu keplerName: planet.kepler_name,
+  // al doilea argument : daca exista va face doar update cu ce este in al doilea argument
+  // al treilea: daca vrem sa fie adaugata numai daca nu exista
+  try {
+    await planets.updateOne(
+      {
+        keplerName: planet.kepler_name,
+      },
+      { keplerName: planet.kepler_name },
+      { upsert: true }
+    );
+  } catch (err) {
+    console.error(`Could not save planet ${err}`);
+  }
 }
 
 module.exports = {
